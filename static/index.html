@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced IRIS | Insider Risk Identification System</title>
+    <meta name="description" content="AI-powered financial intelligence and anomaly detection.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- TradingView Lightweight Charts (Pinned to v4.1.3 for API stability) -->
+    <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Animated Background Orbs -->
+        <div class="bg-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+        </div>
+
+        <!-- Top Navigation -->
+        <nav class="top-nav glass-panel">
+            <!-- Left zone: spacer (mirrors right side for true centering) -->
+            <div class="nav-left">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                        </svg>
+                    </div>
+                    <div class="logo-text-wrapper">
+                        <h1>IRIS</h1>
+                        <span class="logo-expanded-text">| Insider Risk Identification System</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center zone: nav links -->
+            <div class="nav-center">
+                <ul class="nav-links">
+                    <li class="active" id="nav-dashboard">Dashboard</li>
+                    <li id="nav-analysis">Deep Analysis</li>
+                </ul>
+            </div>
+
+            <!-- Right zone: search + PRO toggle -->
+            <div class="nav-right">
+                <div class="nav-search-container" id="nav-search-container"
+                    style="display: none; position: relative; width: 220px; flex-shrink: 1; min-width: 0;">
+                    <form class="search-form nav-search-form" style="margin:0;">
+                        <input type="text" class="search-input" placeholder="Search Asset..." required autocomplete="off">
+                        <button type="submit" class="btn-primary" style="padding: 0.5rem 1rem;">
+                            <span class="btn-text">Analyze</span>
+                            <div class="spinner hidden"></div>
+                        </button>
+                    </form>
+                    <div class="search-suggestions hidden glass-panel"></div>
+                </div>
+
+                <!-- PRO MODE Toggle -->
+                <div class="pro-mode-toggle" id="pro-mode-toggle" title="Enable PRO TRADER MODE">
+                    <div class="pro-toggle-track">
+                        <div class="pro-toggle-thumb"></div>
+                    </div>
+                    <span class="pro-toggle-label">PRO MODE</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- PRO MODE Cinematic Overlay -->
+        <div id="pro-mode-overlay" class="pro-mode-overlay hidden">
+            <div class="pro-overlay-inner">
+                <div class="pro-overlay-glow"></div>
+                <div class="pro-overlay-content">
+                    <div class="pro-overlay-icon">⚡</div>
+                    <h2 class="pro-overlay-title">Switching to</h2>
+                    <h1 class="pro-overlay-headline">PRO TRADER MODE</h1>
+                    <p class="pro-overlay-sub">Initializing deep scan engine...</p>
+                    <div class="pro-overlay-bar"><div class="pro-overlay-bar-fill"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeframe Confirmation Modal -->
+        <div id="tf-confirm-modal" class="tf-modal hidden">
+            <div class="tf-modal-box glass-panel">
+                <div class="tf-modal-icon">⏱</div>
+                <h3 class="tf-modal-title">Switch Timeframe?</h3>
+                <p class="tf-modal-body">Switching to <strong id="tf-confirm-label">1D</strong> will re-run the full risk analysis on new data.</p>
+                <div class="tf-modal-actions">
+                    <button id="tf-cancel-btn" class="tf-btn-cancel">Cancel</button>
+                    <button id="tf-confirm-btn" class="tf-btn-confirm">Switch & Analyze</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeframe Switch Cinematic Overlay -->
+        <div id="tf-switch-overlay" class="tf-switch-overlay hidden">
+            <div class="tf-overlay-inner">
+                <div class="tf-overlay-glow"></div>
+                <div class="tf-overlay-content">
+                    <div class="tf-overlay-rings">
+                        <div class="tf-ring tf-ring-1"></div>
+                        <div class="tf-ring tf-ring-2"></div>
+                        <div class="tf-ring tf-ring-3"></div>
+                        <span class="tf-overlay-interval" id="tf-overlay-interval">1D</span>
+                    </div>
+                    <h2 class="tf-overlay-title">Switching Timeframe</h2>
+                    <p class="tf-overlay-sub" id="tf-overlay-sub">Recalibrating risk engine...</p>
+                    <div class="tf-overlay-bar"><div class="tf-overlay-bar-fill" id="tf-overlay-bar-fill"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Global Market Pulse (Ticker Tape) -->
+            <div class="ticker-tape glass-panel">
+                <div class="ticker-content">
+                    <!-- Block 1 -->
+                    <div class="ticker-block">
+                        <span class="ticker-item"><strong>SPY</strong> <span class="risk-low">▲ 0.42%</span></span>
+                        <span class="ticker-item"><strong>QQQ</strong> <span class="risk-high">▼ 1.15%</span></span>
+                        <span class="ticker-item"><strong>BTC-USD</strong> <span class="risk-low">▲ 3.40%</span></span>
+                        <span class="ticker-item"><strong>VIX</strong> <span class="risk-high">▲ 5.20%</span></span>
+                        <span class="ticker-item"><strong>GLD</strong> <span class="risk-low">▲ 0.21%</span></span>
+                        <span class="ticker-item"><strong>NVDA</strong> <span class="risk-high">▼ 2.10%</span></span>
+                        <span class="ticker-item"><strong>TSLA</strong> <span class="risk-low">▲ 1.80%</span></span>
+                        <span class="ticker-item"><strong>AAPL</strong> <span class="risk-low">▲ 0.95%</span></span>
+                        <span class="ticker-item"><strong>MSFT</strong> <span class="risk-medium">▼ 0.12%</span></span>
+                        <span class="ticker-item"><strong>RELIANCE.NS</strong> <span class="risk-low">▲
+                                1.45%</span></span>
+                        <span class="ticker-item"><strong>TCS.NS</strong> <span class="risk-low">▲ 0.80%</span></span>
+                        <span class="ticker-item"><strong>ETH-USD</strong> <span class="risk-low">▲ 2.10%</span></span>
+                    </div>
+                    <!-- Block 2 (Exact Duplicate) -->
+                    <div class="ticker-block">
+                        <span class="ticker-item"><strong>SPY</strong> <span class="risk-low">▲ 0.42%</span></span>
+                        <span class="ticker-item"><strong>QQQ</strong> <span class="risk-high">▼ 1.15%</span></span>
+                        <span class="ticker-item"><strong>BTC-USD</strong> <span class="risk-low">▲ 3.40%</span></span>
+                        <span class="ticker-item"><strong>VIX</strong> <span class="risk-high">▲ 5.20%</span></span>
+                        <span class="ticker-item"><strong>GLD</strong> <span class="risk-low">▲ 0.21%</span></span>
+                        <span class="ticker-item"><strong>NVDA</strong> <span class="risk-high">▼ 2.10%</span></span>
+                        <span class="ticker-item"><strong>TSLA</strong> <span class="risk-low">▲ 1.80%</span></span>
+                        <span class="ticker-item"><strong>AAPL</strong> <span class="risk-low">▲ 0.95%</span></span>
+                        <span class="ticker-item"><strong>MSFT</strong> <span class="risk-medium">▼ 0.12%</span></span>
+                        <span class="ticker-item"><strong>RELIANCE.NS</strong> <span class="risk-low">▲
+                                1.45%</span></span>
+                        <span class="ticker-item"><strong>TCS.NS</strong> <span class="risk-low">▲ 0.80%</span></span>
+                        <span class="ticker-item"><strong>ETH-USD</strong> <span class="risk-low">▲ 2.10%</span></span>
+                    </div>
+                    <!-- Block 3 (For ultrawide monitors) -->
+                    <div class="ticker-block">
+                        <span class="ticker-item"><strong>SPY</strong> <span class="risk-low">▲ 0.42%</span></span>
+                        <span class="ticker-item"><strong>QQQ</strong> <span class="risk-high">▼ 1.15%</span></span>
+                        <span class="ticker-item"><strong>BTC-USD</strong> <span class="risk-low">▲ 3.40%</span></span>
+                        <span class="ticker-item"><strong>VIX</strong> <span class="risk-high">▲ 5.20%</span></span>
+                        <span class="ticker-item"><strong>GLD</strong> <span class="risk-low">▲ 0.21%</span></span>
+                        <span class="ticker-item"><strong>NVDA</strong> <span class="risk-high">▼ 2.10%</span></span>
+                        <span class="ticker-item"><strong>TSLA</strong> <span class="risk-low">▲ 1.80%</span></span>
+                        <span class="ticker-item"><strong>AAPL</strong> <span class="risk-low">▲ 0.95%</span></span>
+                        <span class="ticker-item"><strong>MSFT</strong> <span class="risk-medium">▼ 0.12%</span></span>
+                        <span class="ticker-item"><strong>RELIANCE.NS</strong> <span class="risk-low">▲
+                                1.45%</span></span>
+                        <span class="ticker-item"><strong>TCS.NS</strong> <span class="risk-low">▲ 0.80%</span></span>
+                        <span class="ticker-item"><strong>ETH-USD</strong> <span class="risk-low">▲ 2.10%</span></span>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Global Error Banner -->
+            <div id="error-container" class="error-container hidden glass-panel">
+                <div class="error-icon">⚠️</div>
+                <div class="error-content">
+                    <h3 id="error-title">Error</h3>
+                    <p id="error-message"></p>
+                </div>
+            </div>
+
+            <!-- DASHBOARD VIEW -->
+            <div id="view-dashboard" class="view-section">
+
+                <!-- Hero Section -->
+                <div class="hero-section glass-panel"
+                    style="position: relative; z-index: 50; margin-bottom: 2rem; padding: 4rem 2rem; text-align: center; border: 1px solid var(--border-color); background: radial-gradient(circle at center, rgba(30, 36, 45, 0.9), rgba(22, 27, 34, 0.7));">
+
+                    <div class="system-status-pill">
+                        <div class="pulse-dot"></div>
+                        <span>Insider Risk Identification System</span>
+                    </div>
+
+                    <h1
+                        style="font-size: 3rem; margin-bottom: 1rem; letter-spacing: -1px; background: linear-gradient(135deg, #f8f9fa 0%, #8b949e 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                        Identify Market Anomalies</h1>
+                    <p style="color: var(--text-secondary); font-size: 1.2rem; margin-bottom: 2.5rem;">
+                        Institutional-grade risk intelligence for equities, crypto, and forex.</p>
+
+                    <div style="position: relative; max-width: 600px; margin: 0 auto; width: 100%;">
+                        <form class="search-form hero-search-form" style="margin:0;">
+                            <input type="text" class="search-input"
+                                placeholder="Search Asset Symbol (e.g., RELIANCE)..." required autocomplete="off"
+                                style="padding: 1.2rem 1.5rem; font-size: 1.1rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+                            <button type="submit" class="btn-primary"
+                                style="padding: 1.2rem 2.5rem; font-size: 1.1rem; border-radius: 12px;">
+                                <span class="btn-text">Analyze Risk</span>
+                                <div class="spinner hidden"></div>
+                            </button>
+                        </form>
+                        <div class="search-suggestions hidden glass-panel" style="text-align: left; top: 110%;"></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Watchlist Column -->
+                    <div class="dashboard-card watchlist-card glass-panel">
+                        <h2>My Watchlist</h2>
+                        <div id="watchlist-container" class="watchlist-list">
+                            <div class="watchlist-empty">
+                                <p>No assets saved yet. Search for a symbol to add it.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Risky Stocks Column -->
+                    <div class="dashboard-card glass-panel">
+                        <h2>Top Risky Stocks Today</h2>
+                        <div id="top-risky-list" class="risky-list">
+                            <div class="spinner"></div> <!-- Replaced by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAIL VIEW -->
+            <div id="view-detail" class="view-section hidden">
+                <!-- Global Timeframe Toggles -->
+                <div class="timeframe-header glass-panel"
+                    style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;">
+                    <span style="font-weight: 600; color: var(--text-secondary);">Risk Engine Timeframe:</span>
+                    <div class="chart-toggles" id="chart-toggles">
+                        <button class="chart-btn" data-interval="5m">5M</button>
+                        <button class="chart-btn active" data-interval="15m">15M</button>
+                        <button class="chart-btn" data-interval="1h">1H</button>
+                        <button class="chart-btn" data-interval="1d">1D</button>
+                        <button class="chart-btn" data-interval="1wk">1W</button>
+                    </div>
+                </div>
+
+                <div class="detail-top-row">
+                    <!-- Risk Score Card -->
+                    <div class="risk-card glass-panel" id="risk-card">
+                        <div class="risk-header">
+                            <div class="symbol-wrapper-header" style="display: flex; align-items: center; gap: 1rem; min-width: 0; flex: 1;">
+                                <h3 id="result-symbol" class="result-symbol" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">--</h3>
+                                <button id="btn-watchlist-toggle" class="btn-icon" style="flex-shrink: 0;" title="Toggle Watchlist">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        class="bookmark-icon">
+                                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="risk-badge" id="risk-badge" style="flex-shrink: 0; margin-left: 1rem;">--</div>
+                        </div>
+
+                        <!-- Market Session Status -->
+                        <div class="market-session-status" id="market-session-container">
+                            <span class="session-dot" id="session-dot"></span>
+                            <span id="session-text" class="session-text">--</span>
+                            <span id="session-time" class="session-time">--</span>
+                        </div>
+
+                        <div class="score-section">
+                            <div class="score-circle" id="score-circle">
+                                <svg class="progress-ring" width="140" height="140">
+                                    <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.1)"
+                                        stroke-width="10" fill="transparent" r="60" cx="70" cy="70" />
+                                    <circle class="progress-ring__circle" id="progress-ring-circle"
+                                        stroke="currentColor" stroke-width="10" fill="transparent" r="60" cx="70"
+                                        cy="70" />
+                                </svg>
+                                <div class="score-value-wrapper">
+                                    <span class="score-value" id="risk-score">0</span>
+                                </div>
+                            </div>
+                            <p class="score-label">Risk Score</p>
+                            <p class="confidence-text">Model Confidence: <span id="confidence-score">0</span>%</p>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights & Sentiment -->
+                    <div class="ai-panel glass-panel">
+                        <div class="ai-header">
+                            <h3><span class="icon">✨</span> AI Insights & Sentiment</h3>
+                            <div class="sentiment-badge" id="sentiment-badge">--</div>
+                        </div>
+                        <p id="ai-summary-text" class="ai-summary-text">Analyzing...</p>
+
+                        <div class="detail-block">
+                            <h4>Reasoning Engine</h4>
+                            <ul id="reasons-list" class="reasons-list"></ul>
+                        </div>
+                        <div class="detail-block suggestion-block">
+                            <h4>Recommended Action</h4>
+                            <p id="suggestion-text"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Phase Detection Card (PRO only) -->
+                <div class="market-phase-section glass-panel pro-only-feature" id="market-phase-card">
+                    <div class="phase-card-header">
+                        <div class="phase-title-group">
+                            <span class="phase-icon-large" id="phase-icon">🟡</span>
+                            <div>
+                                <div class="phase-label-sm">MARKET PHASE</div>
+                                <div class="phase-name" id="phase-name">Detecting...</div>
+                            </div>
+                        </div>
+                        <div class="phase-direction-badge" id="phase-direction-badge">
+                            <span id="phase-direction-arrow">→</span>
+                            <span id="phase-direction-text">Neutral</span>
+                        </div>
+                    </div>
+
+                    <p class="phase-description" id="phase-description">Analyzing market structure...</p>
+
+                    <div class="phase-metrics-row">
+                        <div class="phase-metric">
+                            <div class="phase-metric-label">ADX Strength</div>
+                            <div class="phase-metric-value" id="phase-adx-value">—</div>
+                            <div class="phase-metric-sub" id="phase-adx-strength">—</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-label">Volume Trend</div>
+                            <div class="phase-metric-value" id="phase-vol-trend">—</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-label">BB Width</div>
+                            <div class="phase-metric-value" id="phase-bb-width">—</div>
+                            <div class="phase-metric-sub">Volatility Spread</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-label">Phase Confidence</div>
+                            <div class="phase-confidence-bar-wrap">
+                                <div class="phase-confidence-bar" id="phase-conf-bar"></div>
+                            </div>
+                            <div class="phase-metric-sub" id="phase-conf-text">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Chart -->
+                <div class="chart-container glass-panel" id="chart-section-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0;">Interactive Price & Volume Chart</h3>
+                        <div style="display: flex; gap: 0.75rem; align-items: center;">
+                            <div class="chart-controls">
+                                <label class="marker-toggle active" id="toggle-volume">
+                                    <span class="dot" style="background: #ef5350;"></span> Volume
+                                </label>
+                                <label class="marker-toggle active" id="toggle-price">
+                                    <span class="dot" style="background: #fb8c00;"></span> Price
+                                </label>
+                                <label class="marker-toggle active" id="toggle-pattern">
+                                    <span class="dot" style="background: #aa00ff;"></span> Patterns
+                                </label>
+                            </div>
+                            <button id="btn-chart-fullscreen" class="btn-icon" title="Full Screen">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; position: relative; flex: 1;">
+                        <!-- Drawing Toolbar -->
+                        <div class="drawing-toolbar" id="drawing-toolbar">
+                            <button class="draw-tool active" data-tool="pointer" title="Cursor (P / Escape)">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path><path d="M13 13l6 6"></path></svg>
+                            </button>
+                            <button class="draw-tool" data-tool="trendline" title="Trend Line (T)">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="19" cy="5" r="2"></circle><circle cx="5" cy="19" r="2"></circle></svg>
+                            </button>
+                            <button class="draw-tool" data-tool="horizline" title="Horizontal Ray (H)">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><circle cx="12" cy="12" r="2"></circle></svg>
+                            </button>
+                            <button class="draw-tool" data-tool="eraser" title="Eraser (E)">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l7-7 7 7-4 4"></path><path d="M18 12l-5-5 2-2 5 5-2 2z"></path></svg>
+                            </button>
+                            <div class="tool-divider"></div>
+                            <button class="draw-tool-action" id="btn-undo-drawing" title="Undo Last (Ctrl+Z)">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5"></path><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+                            </button>
+                            <button class="draw-tool-action" id="btn-clear-drawings" title="Clear All Drawings">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                        </div>
+
+                        <div id="tv-chart" class="tv-chart" style="position: relative; flex: 1;">
+                            <div id="chart-tooltip" class="chart-tooltip"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- News Feed -->
+                <div class="news-container glass-panel">
+                    <h3>Recent News</h3>
+                    <div id="news-feed" class="news-feed"></div>
+                </div>
+
+                <!-- Pro Mode FAQ Section -->
+                <div class="faq-container glass-panel pro-only-feature">
+                    <h3>Risk Scenarios & FAQs</h3>
+                    <div id="faq-list" class="faq-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/main.js?v=2"></script>
+</body>
+
+</html>
