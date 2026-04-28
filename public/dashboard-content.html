@@ -68,8 +68,6 @@
                     <div class="search-suggestions hidden glass-panel"></div>
                 </div>
 
-                <!-- Clerk User Button Container -->
-                <div id="clerk-user-button"></div>
             </div>
         </nav>
 
@@ -427,25 +425,7 @@
 
     <script src="/static/js/main.js?v=2"></script>
 
-    <!-- Clerk Integration -->
-    <script>
-      const publishableKey = "pk_test_c2VsZWN0LWNhbGYtODkuY2xlcmsuYWNjb3VudHMuZGV2JA"; // From Next.js .env.local
-      const script = document.createElement('script');
-      script.setAttribute('data-clerk-publishable-key', publishableKey);
-      script.async = true;
-      script.src = `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
-      script.crossOrigin = "anonymous";
-      script.addEventListener('load', async function () {
-        await window.Clerk.load();
-        if (window.Clerk.user) {
-            const userButtonDiv = document.getElementById('clerk-user-button');
-            window.Clerk.mountUserButton(userButtonDiv);
-        } else {
-            console.warn("Clerk session not found on this domain.");
-        }
-      });
-      document.body.appendChild(script);
-    </script>
+
 </body>
 
 </html>

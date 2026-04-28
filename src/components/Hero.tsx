@@ -17,7 +17,7 @@ export default function Hero() {
       setIsRedirecting(true);
       setTimeout(() => {
         // Redirect to natively hosted Next.js dashboard
-        const dashboardUrl = '/dashboard.html';
+        const dashboardUrl = '/dashboard';
         window.location.href = dashboardUrl;
       }, 3000); // 3 second transfer animation to let them read the message
     }
