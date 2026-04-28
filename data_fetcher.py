@@ -22,7 +22,11 @@ DAILY_PERIOD_PRO    = '2y'
 def _safe_fetch(symbol: str, interval: str, period: str) -> pd.DataFrame | None:
     """Internal: fetch OHLCV and validate columns."""
     try:
-        ticker = yf.Ticker(symbol.upper())
+        session = requests.Session()
+        session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        })
+        ticker = yf.Ticker(symbol.upper(), session=session)
         df = ticker.history(period=period, interval=interval)
         if df is None or df.empty:
             return None
