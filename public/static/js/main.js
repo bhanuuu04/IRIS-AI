@@ -117,6 +117,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Message Listener from Next.js Parent ---
+    window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'PAYMENT_SUCCESS') {
+            const modal = document.getElementById('congrats-modal');
+            const card = document.getElementById('congrats-card');
+            if (modal && card) {
+                modal.classList.remove('hidden');
+                // Trigger reflow for animation
+                void modal.offsetWidth;
+                modal.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+
+                const btnClose = document.getElementById('btn-close-congrats');
+                btnClose.addEventListener('click', () => {
+                    modal.style.opacity = '0';
+                    card.style.transform = 'scale(0.9)';
+                    setTimeout(() => modal.classList.add('hidden'), 500);
+                    
+                    // Auto-enable Pro Mode!
+                    if (!isProMode) {
+                        proToggle.click();
+                    }
+                }, { once: true });
+            }
+        }
+    });
+
+
     // --- Initialization ---
     initDashboard();
     initTimeframeToggles();

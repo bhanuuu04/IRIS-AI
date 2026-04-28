@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_DASHBOARD_URL}/api/:path*`,
+        source: '/api/analyze/:path*',
+        destination: `${process.env.NEXT_PUBLIC_DASHBOARD_URL}/api/analyze/:path*`,
       },
     ];
   },

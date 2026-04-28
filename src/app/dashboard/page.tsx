@@ -1,11 +1,13 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -17,6 +19,21 @@ export default function DashboardPage() {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [router]);
+
+  useEffect(() => {
+    // Check if payment was just successful
+    if (searchParams.get('payment_success') === 'true') {
+      // Small delay to ensure iframe is loaded
+      setTimeout(() => {
+        if (iframeRef.current && iframeRef.current.contentWindow) {
+          iframeRef.current.contentWindow.postMessage({ type: 'PAYMENT_SUCCESS' }, '*');
+        }
+      }, 1000);
+      
+      // Clean up the URL
+      window.history.replaceState({}, '', '/dashboard');
+    }
+  }, [searchParams]);
 
   return (
     <div className="w-full h-screen overflow-hidden bg-[#0d1117] relative">
@@ -33,6 +50,7 @@ export default function DashboardPage() {
       
       {/* Vanilla JS Dashboard embedded seamlessly */}
       <iframe 
+        ref={iframeRef}
         src="/dashboard-content.html" 
         className="w-full h-full border-none"
         title="IRIS Dashboard"

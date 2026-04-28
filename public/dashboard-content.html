@@ -423,6 +423,18 @@
         </main>
     </div>
 
+    <!-- Congratulations Modal (Hidden by default) -->
+    <div id="congrats-modal" class="hidden" style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.5s ease;">
+        <div style="background: #0d1117; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 20px; padding: 2rem; max-width: 400px; text-align: center; box-shadow: 0 0 40px rgba(168, 85, 247, 0.2); transform: scale(0.9); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);" id="congrats-card">
+            <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(168, 85, 247, 0.1); border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <h2 style="font-size: 1.5rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Welcome to PRO Mode!</h2>
+            <p style="color: #9ca3af; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">Congratulations and thank you for your purchase. You can now use the advanced intelligence layer to detect hidden risks and anomalies.</p>
+            <button id="btn-close-congrats" style="width: 100%; padding: 0.75rem; border-radius: 10px; border: none; background: linear-gradient(135deg, #a855f7, #c026d3); color: white; font-weight: bold; cursor: pointer; transition: transform 0.2s;">Start Exploring</button>
+        </div>
+    </div>
+
     <script src="/static/js/main.js?v=2"></script>
 
 
