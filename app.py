@@ -17,7 +17,7 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 EXECUTOR = ThreadPoolExecutor(max_workers=10)
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__)
 
 # Cache configuration
 app.config['CACHE_TYPE'] = 'SimpleCache'
@@ -27,7 +27,7 @@ cache = Cache(app)
 
 @app.route('/')
 def index():
-    return send_from_directory(app.static_folder, 'index.html')
+    return {"status": "IRIS AI Backend Online", "version": "1.0"}, 200
 
 
 @app.route('/api/analyze/<symbol>', methods=['GET'])

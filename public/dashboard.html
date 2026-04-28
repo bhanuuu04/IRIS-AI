@@ -441,8 +441,7 @@
             const userButtonDiv = document.getElementById('clerk-user-button');
             window.Clerk.mountUserButton(userButtonDiv);
         } else {
-            // Unauthenticated user hit the dashboard without going through Next.js
-            window.location.href = '/'; 
+            console.warn("Clerk session not found on this domain.");
         }
       });
       document.body.appendChild(script);

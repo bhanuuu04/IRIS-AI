@@ -16,8 +16,8 @@ export default function Hero() {
     if (isLoaded && isSignedIn) {
       setIsRedirecting(true);
       setTimeout(() => {
-        // Redirect to cloud backend if deployed, otherwise fallback to local port 5000
-        const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL || `${window.location.protocol}//${window.location.hostname}:5000/`;
+        // Redirect to natively hosted Next.js dashboard
+        const dashboardUrl = '/dashboard.html';
         window.location.href = dashboardUrl;
       }, 3000); // 3 second transfer animation to let them read the message
     }
