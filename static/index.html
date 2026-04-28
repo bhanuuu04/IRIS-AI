@@ -39,14 +39,23 @@
 
             <!-- Center zone: nav links -->
             <div class="nav-center">
-                <ul class="nav-links">
+                <ul class="nav-links" style="display: flex; align-items: center; gap: 1rem;">
                     <li class="active" id="nav-dashboard">Dashboard</li>
                     <li id="nav-analysis">Deep Analysis</li>
+                    <li style="display: flex; align-items: center;">
+                        <!-- PRO MODE Toggle -->
+                        <div class="pro-mode-toggle" id="pro-mode-toggle" title="Enable PRO TRADER MODE" style="margin: 0; margin-left: 0.5rem;">
+                            <div class="pro-toggle-track">
+                                <div class="pro-toggle-thumb"></div>
+                            </div>
+                            <span class="pro-toggle-label">PRO MODE</span>
+                        </div>
+                    </li>
                 </ul>
             </div>
 
-            <!-- Right zone: search + PRO toggle -->
-            <div class="nav-right">
+            <!-- Right zone: search + profile -->
+            <div class="nav-right" style="display: flex; align-items: center; gap: 1.5rem;">
                 <div class="nav-search-container" id="nav-search-container"
                     style="display: none; position: relative; width: 220px; flex-shrink: 1; min-width: 0;">
                     <form class="search-form nav-search-form" style="margin:0;">
@@ -59,13 +68,8 @@
                     <div class="search-suggestions hidden glass-panel"></div>
                 </div>
 
-                <!-- PRO MODE Toggle -->
-                <div class="pro-mode-toggle" id="pro-mode-toggle" title="Enable PRO TRADER MODE">
-                    <div class="pro-toggle-track">
-                        <div class="pro-toggle-thumb"></div>
-                    </div>
-                    <span class="pro-toggle-label">PRO MODE</span>
-                </div>
+                <!-- Clerk User Button Container -->
+                <div id="clerk-user-button"></div>
             </div>
         </nav>
 
@@ -422,6 +426,27 @@
     </div>
 
     <script src="/static/js/main.js?v=2"></script>
+
+    <!-- Clerk Integration -->
+    <script>
+      const publishableKey = "pk_test_c2VsZWN0LWNhbGYtODkuY2xlcmsuYWNjb3VudHMuZGV2JA"; // From Next.js .env.local
+      const script = document.createElement('script');
+      script.setAttribute('data-clerk-publishable-key', publishableKey);
+      script.async = true;
+      script.src = `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+      script.crossOrigin = "anonymous";
+      script.addEventListener('load', async function () {
+        await window.Clerk.load();
+        if (window.Clerk.user) {
+            const userButtonDiv = document.getElementById('clerk-user-button');
+            window.Clerk.mountUserButton(userButtonDiv);
+        } else {
+            // Unauthenticated user hit the dashboard without going through Next.js
+            window.location.href = '/'; 
+        }
+      });
+      document.body.appendChild(script);
+    </script>
 </body>
 
 </html>
