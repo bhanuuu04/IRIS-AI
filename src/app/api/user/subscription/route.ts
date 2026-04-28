@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/ NextResponse'
+import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
