@@ -37,12 +37,11 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full h-screen overflow-hidden bg-[#0d1117] relative">
-      {/* Absolute floating Clerk Profile Button */}
-      <div className="absolute z-50 top-4 right-8">
+      <div className="absolute z-50 top-4 right-8 transform scale-150 origin-top-right">
         <UserButton 
           appearance={{
             elements: {
-              avatarBox: "w-12 h-12 border-2 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+              userButtonAvatarBox: "border-2 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
             }
           }}
         />
