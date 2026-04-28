@@ -1,7 +1,9 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { UserButton } from "@clerk/nextjs";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function DashboardPage() {
