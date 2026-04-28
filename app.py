@@ -55,7 +55,8 @@ def analyze_symbol(symbol):
         is_intraday = dual['is_intraday']
 
         if chart_df is None or chart_df.empty:
-            return jsonify({'error': True, 'reasons': [f'Could not fetch data for {symbol.upper()}']}), 404
+            err_msg = dual.get('error') or f'Could not fetch data for {symbol.upper()}'
+            return jsonify({'error': True, 'reasons': [err_msg]}), 404
 
         # ── 2. Run indicators separately on both dataframes ───────────────
         chart_with_ind = add_all_indicators(chart_df)
