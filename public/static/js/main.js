@@ -60,7 +60,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    proToggle.addEventListener('click', () => {
+    proToggle.addEventListener('click', async () => {
+        if (!isProMode) {
+            // We are trying to turn it ON. Check subscription first.
+            const btnText = proToggle.querySelector('span');
+            const originalText = btnText ? btnText.textContent : 'PRO MODE';
+            if (btnText) btnText.textContent = 'Checking...';
+            proToggle.style.pointerEvents = 'none';
+
+            try {
+                const res = await fetch('/api/user/subscription');
+                const data = await res.json();
+
+                if (!data.active) {
+                    // Not subscribed! Redirect to /pro with cinematic animation
+                    document.body.style.transition = 'opacity 0.8s ease-in-out';
+                    document.body.style.opacity = '0';
+                    // We need to message the parent window (Next.js) to navigate since this is in an iframe
+                    window.parent.postMessage({ type: 'NAVIGATE', path: '/pro' }, '*');
+                    
+                    // Fallback if iframe messaging isn't set up
+                    setTimeout(() => {
+                        window.top.location.href = '/pro';
+                    }, 800);
+                    return;
+                }
+                
+                // Subscription active! Proceed with turning it on.
+            } catch (err) {
+                console.error("Subscription check failed", err);
+                if (btnText) btnText.textContent = originalText;
+                proToggle.style.pointerEvents = 'auto';
+                return;
+            }
+
+            if (btnText) btnText.textContent = originalText;
+            proToggle.style.pointerEvents = 'auto';
+        }
+
         isProMode = !isProMode;
         proToggle.classList.toggle('active', isProMode);
         document.body.classList.toggle('pro-mode-active', isProMode);
