@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { useEffect, useRef, Suspense } from "react";
+import { useEffect, useRef, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // ─── Inner component that uses useSearchParams ───────────────────────────────
@@ -27,12 +27,16 @@ function PaymentSuccessHandler({ iframeRef }: { iframeRef: React.RefObject<HTMLI
 export default function DashboardPage() {
   const router = useRouter();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [showProfile, setShowProfile] = useState(true);
 
-  // Listen for navigation messages from the iframe
+  // Listen for navigation + view messages from the iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'NAVIGATE') {
         router.push(event.data.path);
+      }
+      if (event.data?.type === 'VIEW_CHANGED') {
+        setShowProfile(event.data.view === 'dashboard');
       }
     };
     window.addEventListener('message', handleMessage);
@@ -46,16 +50,18 @@ export default function DashboardPage() {
         <PaymentSuccessHandler iframeRef={iframeRef} />
       </Suspense>
 
-      {/* Clerk Profile Button */}
-      <div className="absolute z-50 top-4 right-8 transform scale-150 origin-top-right">
-        <UserButton
-          appearance={{
-            elements: {
-              userButtonAvatarBox: "border-2 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.4)]",
-            },
-          }}
-        />
-      </div>
+      {/* Clerk Profile Button — only on main dashboard view */}
+      {showProfile && (
+        <div className="absolute z-50 top-4 right-8 transform scale-150 origin-top-right">
+          <UserButton
+            appearance={{
+              elements: {
+                userButtonAvatarBox: "border-2 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.4)]",
+              },
+            }}
+          />
+        </div>
+      )}
 
       {/* Vanilla JS Dashboard */}
       <iframe
