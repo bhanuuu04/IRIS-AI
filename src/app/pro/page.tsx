@@ -121,7 +121,21 @@ export default function ProSubscriptionPage() {
     }
   };
 
-  const handleSubmitCoupon = () => {
+  const handleSubmitCoupon = async () => {
+    try {
+      const res = await fetch('/api/coupon/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couponCode: appliedCoupon }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        console.error('[activate] Failed:', data.error);
+      }
+    } catch (err) {
+      console.error('[activate] Network error:', err);
+    }
+    // Regardless of edge errors, show welcome and redirect
     triggerSuccessExit();
   };
 
