@@ -386,139 +386,137 @@ export default function ProSubscriptionPage() {
 
         </main>
 
-        {/* ── Cinematic Welcome Overlay ── */}
-        <AnimatePresence>
-          {pageExit && (
+      </motion.div>
+
+      {/* ── Cinematic Welcome Overlay — outside the fading wrapper ── */}
+      <AnimatePresence>
+        {pageExit && (
+          <motion.div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ background: 'radial-gradient(ellipse at 50% 40%, #1a0533 0%, #06080c 70%)' }}
+          >
+            {/* Ambient glow blobs */}
             <motion.div
-              className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              style={{ background: 'radial-gradient(ellipse at 50% 40%, #1a0533 0%, #06080c 70%)' }}
-            >
-              {/* Ambient glow blobs */}
-              <motion.div
-                className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%)' }}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 1.2, ease: 'easeOut' }}
-              />
-              <motion.div
-                className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)' }}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 1.2, delay: 0.2, ease: 'easeOut' }}
-              />
+              className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%)' }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1.2, ease: 'easeOut' }}
+            />
+            <motion.div
+              className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)' }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1.2, delay: 0.2, ease: 'easeOut' }}
+            />
 
-              {/* Horizontal shimmer line */}
-              <motion.div
-                className="absolute w-full h-px pointer-events-none"
-                style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), rgba(99,102,241,0.5), transparent)', top: '48%' }}
-                initial={{ scaleX: 0, opacity: 0 }}
-                animate={{ scaleX: 1, opacity: [0, 1, 0] }}
-                transition={{ duration: 1.0, delay: 0.3, ease: 'easeInOut' }}
-              />
+            {/* Horizontal shimmer line */}
+            <motion.div
+              className="absolute w-full h-px pointer-events-none"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), rgba(99,102,241,0.5), transparent)', top: '48%' }}
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: [0, 1, 0] }}
+              transition={{ duration: 1.0, delay: 0.3, ease: 'easeInOut' }}
+            />
 
-              {/* Content stack */}
-              <div className="relative z-10 flex flex-col items-center text-center px-6 gap-6 max-w-3xl">
+            {/* Content stack */}
+            <div className="relative z-10 flex flex-col items-center text-center px-6 gap-6 max-w-3xl">
 
-                {/* Offer pill — CUxGT only */}
-                {appliedCoupon === 'CUXGT' && (
-                  <motion.div
-                    initial={{ y: -30, opacity: 0, scale: 0.9 }}
-                    animate={{ y: 0, opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6, delay: 0.3, type: 'spring', stiffness: 200, damping: 18 }}
-                    className="relative"
-                  >
-                    {/* Pill glow */}
-                    <div className="absolute inset-0 rounded-full blur-lg opacity-40" style={{ background: 'linear-gradient(90deg, #a855f7, #6366f1)' }} />
-                    <div className="relative flex items-center gap-2.5 px-6 py-3 rounded-full border border-purple-400/30"
-                      style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15))' }}>
-                      {/* Pulsing dot */}
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-300" />
-                      </span>
-                      <p className="text-sm md:text-base font-bold tracking-widest uppercase"
-                        style={{ background: 'linear-gradient(90deg, #d8b4fe, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                        Offer Active&nbsp;·&nbsp;Chandigarh University&nbsp;×&nbsp;Grant Thornton
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Icon ring */}
+              {/* Offer pill — CUxGT only */}
+              {appliedCoupon === 'CUXGT' && (
                 <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.7, delay: 0.5, type: 'spring', stiffness: 240, damping: 16 }}
-                  className="relative flex items-center justify-center"
+                  initial={{ y: -30, opacity: 0, scale: 0.9 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.3, type: 'spring', stiffness: 200, damping: 18 }}
+                  className="relative"
                 >
-                  {/* Outer pulse ring */}
-                  <motion.div
-                    className="absolute rounded-full border border-purple-500/30"
-                    animate={{ scale: [1, 1.5], opacity: [0.6, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
-                    style={{ width: 100, height: 100 }}
-                  />
-                  <motion.div
-                    className="absolute rounded-full border border-purple-400/20"
-                    animate={{ scale: [1, 1.8], opacity: [0.4, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.4, ease: 'easeOut' }}
-                    style={{ width: 100, height: 100 }}
-                  />
-                  <div className="w-24 h-24 rounded-full flex items-center justify-center"
-                    style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.25), rgba(99,102,241,0.15))', border: '1px solid rgba(168,85,247,0.4)', boxShadow: '0 0 40px rgba(168,85,247,0.3)' }}>
-                    <CheckCircle2 className="w-11 h-11 text-purple-300" />
+                  <div className="absolute inset-0 rounded-full blur-lg opacity-40" style={{ background: 'linear-gradient(90deg, #a855f7, #6366f1)' }} />
+                  <div className="relative flex items-center gap-2.5 px-6 py-3 rounded-full border border-purple-400/30"
+                    style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15))' }}>
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-300" />
+                    </span>
+                    <p className="text-sm md:text-base font-bold tracking-widest uppercase"
+                      style={{ background: 'linear-gradient(90deg, #d8b4fe, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      Offer Active · Chandigarh University × Grant Thornton
+                    </p>
                   </div>
                 </motion.div>
+              )}
 
-                {/* Headline */}
+              {/* Icon ring */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.5, type: 'spring', stiffness: 240, damping: 16 }}
+                className="relative flex items-center justify-center"
+              >
                 <motion.div
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.7, delay: 0.65, ease: [0.23, 1, 0.32, 1] }}
-                  className="flex flex-col items-center gap-3"
-                >
-                  <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight"
-                    style={{ background: 'linear-gradient(135deg, #ffffff 0%, #d8b4fe 50%, #818cf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    {appliedCoupon === 'CUXGT' ? 'Welcome to Pro Mode' : 'Pro Activated!'}
-                  </h1>
-                  {appliedCoupon === 'CUXGT' && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.85 }}
-                      className="text-2xl md:text-3xl font-bold"
-                      style={{ background: 'linear-gradient(90deg, #a855f7, #6366f1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
-                    >
-                      of IRIS AI
-                    </motion.p>
-                  )}
-                </motion.div>
+                  className="absolute rounded-full border border-purple-500/30"
+                  animate={{ scale: [1, 1.5], opacity: [0.6, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
+                  style={{ width: 100, height: 100 }}
+                />
+                <motion.div
+                  className="absolute rounded-full border border-purple-400/20"
+                  animate={{ scale: [1, 1.8], opacity: [0.4, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.4, ease: 'easeOut' }}
+                  style={{ width: 100, height: 100 }}
+                />
+                <div className="w-24 h-24 rounded-full flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.25), rgba(99,102,241,0.15))', border: '1px solid rgba(168,85,247,0.4)', boxShadow: '0 0 40px rgba(168,85,247,0.3)' }}>
+                  <CheckCircle2 className="w-11 h-11 text-purple-300" />
+                </div>
+              </motion.div>
 
-                {/* CTA Button */}
-                <motion.button
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.9, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-                  onClick={() => router.push('/dashboard')}
-                  className="relative group mt-2 px-8 py-4 rounded-2xl font-bold text-base md:text-lg text-white overflow-hidden"
-                  style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', boxShadow: '0 0 30px rgba(124,58,237,0.4)' }}
-                  whileHover={{ scale: 1.04, boxShadow: '0 0 50px rgba(124,58,237,0.6)' }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  {/* shimmer sweep */}
-                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
-                    style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)' }} />
-                  <span className="relative flex items-center gap-2">
-                    <Sparkles className="w-5 h-5" />
-                    Continue your journey with IRIS PRO+
-                  </span>
-                </motion.button>
+              {/* Headline */}
+              <motion.div
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.65, ease: [0.23, 1, 0.32, 1] }}
+                className="flex flex-col items-center gap-3"
+              >
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight"
+                  style={{ background: 'linear-gradient(135deg, #ffffff 0%, #d8b4fe 50%, #818cf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  {appliedCoupon === 'CUXGT' ? 'Welcome to Pro Mode' : 'Pro Activated!'}
+                </h1>
+                {appliedCoupon === 'CUXGT' && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.85 }}
+                    className="text-2xl md:text-3xl font-bold"
+                    style={{ background: 'linear-gradient(90deg, #a855f7, #6366f1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+                  >
+                    of IRIS AI
+                  </motion.p>
+                )}
+              </motion.div>
+
+              {/* CTA Button */}
+              <motion.button
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+                onClick={() => router.push('/dashboard')}
+                className="relative group mt-2 px-8 py-4 rounded-2xl font-bold text-base md:text-lg text-white overflow-hidden"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', boxShadow: '0 0 30px rgba(124,58,237,0.4)' }}
+                whileHover={{ scale: 1.04, boxShadow: '0 0 50px rgba(124,58,237,0.6)' }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
+                  style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)' }} />
+                <span className="relative flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" />
+                  Continue your journey with IRIS PRO+
+                </span>
+              </motion.button>
 
                 {/* Bottom shimmer bar */}
                 <motion.div
@@ -531,8 +529,7 @@ export default function ProSubscriptionPage() {
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
-      </motion.div>
+      </AnimatePresence>
     </>
   );
 }
