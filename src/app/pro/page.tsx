@@ -1,38 +1,44 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Sparkles, ShieldAlert, BrainCircuit, Zap, BarChart3, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft, Check, Sparkles, ShieldAlert, BrainCircuit,
+  Zap, BarChart3, Loader2, Tag, CheckCircle2, X
+} from 'lucide-react';
 import Script from 'next/script';
 
 export default function ProSubscriptionPage() {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [couponStatus, setCouponStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [couponMessage, setCouponMessage] = useState('');
+  const [pageExit, setPageExit] = useState(false);
+
   const handleSubscribe = async () => {
     try {
       setIsProcessing(true);
-      
+
       // 1. Create Order
       const res = await fetch('/api/razorpay/order', { method: 'POST' });
       const data = await res.json();
-      
-      if (!data.order) {
-        throw new Error("Failed to create order");
-      }
+
+      if (!data.order) throw new Error('Failed to create order');
 
       // 2. Initialize Razorpay Checkout
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Ensure you expose the ID to frontend
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: data.order.amount,
         currency: data.order.currency,
-        name: "IRIS AI",
-        description: "Pro Mode Monthly Subscription",
+        name: 'IRIS AI',
+        description: 'Pro Mode Monthly Subscription',
         order_id: data.order.id,
         handler: async function (response: any) {
           try {
-            // 3. Verify Payment Signature Backend
             const verifyRes = await fetch('/api/razorpay/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -40,62 +46,101 @@ export default function ProSubscriptionPage() {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-              })
+              }),
             });
 
             const verifyData = await verifyRes.json();
-            
+
             if (verifyData.success) {
-              // 4. Redirect on Success
-              router.push('/dashboard?payment_success=true');
+              triggerSuccessExit();
             } else {
-              alert("Payment verification failed. Please contact support.");
+              alert('Payment verification failed. Please contact support.');
             }
           } catch (err) {
             console.error(err);
-            alert("Error verifying payment.");
+            alert('Error verifying payment.');
           }
         },
-        theme: {
-          color: "#9333ea"
-        }
+        theme: { color: '#9333ea' },
       };
 
       const paymentObject = new (window as any).Razorpay(options);
       paymentObject.open();
-
     } catch (error) {
       console.error(error);
-      alert("Something went wrong. Please try again.");
+      alert('Something went wrong. Please try again.');
     } finally {
       setIsProcessing(false);
     }
   };
 
+  const handleApplyCoupon = async () => {
+    const trimmed = couponCode.trim();
+    if (!trimmed) return;
+
+    setCouponStatus('loading');
+    setCouponMessage('');
+
+    try {
+      const res = await fetch('/api/coupon/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couponCode: trimmed }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setCouponStatus('success');
+        setCouponMessage('Coupon applied! Redirecting you to dashboard…');
+        // Short delay so user can read the success state, then animate out
+        setTimeout(() => triggerSuccessExit(), 1800);
+      } else {
+        setCouponStatus('error');
+        setCouponMessage(data.error || 'Invalid coupon code. Please try again.');
+        setTimeout(() => setCouponStatus('idle'), 3000);
+      }
+    } catch (err) {
+      console.error(err);
+      setCouponStatus('error');
+      setCouponMessage('Something went wrong. Please try again.');
+      setTimeout(() => setCouponStatus('idle'), 3000);
+    }
+  };
+
+  const triggerSuccessExit = () => {
+    setPageExit(true);
+    setTimeout(() => router.push('/dashboard'), 700);
+  };
+
   const features = [
-    { icon: <ShieldAlert className="w-5 h-5 text-purple-400" />, text: "Identifies unusual trading behavior early" },
-    { icon: <BrainCircuit className="w-5 h-5 text-purple-400" />, text: "Uses advanced AI for deeper pattern recognition" },
-    { icon: <Zap className="w-5 h-5 text-purple-400" />, text: "Provides faster and more accurate alerts" },
-    { icon: <BarChart3 className="w-5 h-5 text-purple-400" />, text: "Designed for serious investors, analysts, and institutions" },
+    { icon: <ShieldAlert className="w-5 h-5 text-purple-400" />, text: 'Identifies unusual trading behavior early' },
+    { icon: <BrainCircuit className="w-5 h-5 text-purple-400" />, text: 'Uses advanced AI for deeper pattern recognition' },
+    { icon: <Zap className="w-5 h-5 text-purple-400" />, text: 'Provides faster and more accurate alerts' },
+    { icon: <BarChart3 className="w-5 h-5 text-purple-400" />, text: 'Designed for serious investors, analysts, and institutions' },
   ];
 
   return (
     <>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-      <div className="min-h-screen bg-[#06080c] text-white selection:bg-purple-500/30 font-sans relative overflow-hidden">
-        
+
+      <motion.div
+        className="min-h-screen bg-[#06080c] text-white selection:bg-purple-500/30 font-sans relative overflow-hidden"
+        animate={pageExit ? { opacity: 0, scale: 0.97 } : { opacity: 1, scale: 1 }}
+        transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
+      >
         {/* Background Ambient Glows */}
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
 
         {/* Navigation */}
-        <motion.nav 
+        <motion.nav
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
           className="relative z-10 w-full px-8 py-6 flex items-center justify-between"
         >
-          <button 
+          <button
             onClick={() => router.push('/dashboard')}
             className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
           >
@@ -109,36 +154,36 @@ export default function ProSubscriptionPage() {
 
         {/* Main Content */}
         <main className="relative z-10 max-w-6xl mx-auto px-6 pt-12 pb-24 grid lg:grid-cols-2 gap-16 items-center">
-          
+
           {/* Left Column - Copy */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
               Advanced Intelligence Layer
             </div>
-            
+
             <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6 tracking-tight">
               Unlock the ultimate <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-purple-600">
                 market advantage
               </span>
             </h1>
-            
+
             <p className="text-lg text-gray-400 mb-10 leading-relaxed max-w-lg">
               IRIS Pro Mode is the advanced intelligence layer of your IRIS AI system. It uses deeper analysis and smarter models to detect hidden insider risks and suspicious patterns in stock market activity.
             </p>
 
             <div className="space-y-4 mb-10">
               {features.map((feature, i) => (
-                <motion.div 
+                <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 + (i * 0.1) }}
+                  transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
                   className="flex items-center gap-4 text-gray-300 bg-white/5 border border-white/5 rounded-xl p-4 backdrop-blur-sm"
                 >
                   <div className="flex-shrink-0 bg-purple-500/10 p-2 rounded-lg">
@@ -159,10 +204,10 @@ export default function ProSubscriptionPage() {
           >
             {/* Card Glow */}
             <div className="absolute inset-0 bg-gradient-to-b from-purple-500/20 to-transparent blur-2xl rounded-3xl transform -translate-y-4 pointer-events-none" />
-            
+
             <div className="relative bg-[#0d1117]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
-              
+
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-white mb-2">Pro Subscription</h2>
                 <p className="text-gray-400 text-sm">Monthly access to the Reasoning Engine</p>
@@ -173,7 +218,7 @@ export default function ProSubscriptionPage() {
                 <span className="text-gray-400 font-medium">/ month</span>
               </div>
 
-              <div className="space-y-3 mb-10">
+              <div className="space-y-3 mb-8">
                 <div className="flex items-center gap-3 text-sm text-gray-300">
                   <Check className="w-5 h-5 text-green-400" />
                   <span>Unlimited Deep Scans</span>
@@ -188,22 +233,140 @@ export default function ProSubscriptionPage() {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={handleSubscribe}
                 disabled={isProcessing}
                 className="flex items-center justify-center w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
-                {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : "Subscribe with Razorpay"}
+                {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Subscribe with Razorpay'}
               </button>
-              
-              <p className="text-center text-xs text-gray-500 mt-4">
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 my-6">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-xs text-gray-500 font-medium tracking-wider uppercase">or</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+
+              {/* ── Coupon Code Section ── */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-gray-400 mb-1">
+                  <Tag className="w-4 h-4 text-purple-400" />
+                  <span>Have a coupon code?</span>
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      id="coupon-input"
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => {
+                        setCouponCode(e.target.value.toUpperCase());
+                        if (couponStatus !== 'idle') setCouponStatus('idle');
+                      }}
+                      onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                      placeholder="ENTER CODE"
+                      maxLength={20}
+                      className={`
+                        w-full px-4 py-3 rounded-xl text-sm font-mono font-semibold tracking-widest
+                        bg-white/5 border transition-all outline-none placeholder:text-gray-600
+                        ${couponStatus === 'success'
+                          ? 'border-green-500/60 text-green-400 bg-green-500/5'
+                          : couponStatus === 'error'
+                          ? 'border-red-500/60 text-red-400 bg-red-500/5'
+                          : 'border-white/10 text-white focus:border-purple-500/60 focus:bg-purple-500/5'
+                        }
+                      `}
+                      disabled={couponStatus === 'loading' || couponStatus === 'success'}
+                    />
+                    {/* Status icon inside input */}
+                    <AnimatePresence>
+                      {(couponStatus === 'success' || couponStatus === 'error') && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                        >
+                          {couponStatus === 'success'
+                            ? <CheckCircle2 className="w-4 h-4 text-green-400" />
+                            : <X className="w-4 h-4 text-red-400" />
+                          }
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={couponStatus === 'loading' || couponStatus === 'success' || !couponCode.trim()}
+                    className="px-5 py-3 rounded-xl text-sm font-bold bg-purple-600/20 border border-purple-500/30 text-purple-300 hover:bg-purple-600/30 hover:border-purple-500/50 hover:text-purple-200 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {couponStatus === 'loading'
+                      ? <Loader2 className="w-4 h-4 animate-spin" />
+                      : 'Apply'
+                    }
+                  </button>
+                </div>
+
+                {/* Feedback message */}
+                <AnimatePresence>
+                  {couponMessage && (
+                    <motion.p
+                      key={couponMessage}
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25 }}
+                      className={`text-xs font-medium flex items-center gap-1.5 ${
+                        couponStatus === 'success' ? 'text-green-400' : 'text-red-400'
+                      }`}
+                    >
+                      {couponStatus === 'success'
+                        ? <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                        : <X className="w-3.5 h-3.5 flex-shrink-0" />
+                      }
+                      {couponMessage}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <p className="text-center text-xs text-gray-500 mt-6">
                 Secure payment processed via Razorpay. Cancel anytime.
               </p>
             </div>
           </motion.div>
 
         </main>
-      </div>
+
+        {/* Success overlay flash */}
+        <AnimatePresence>
+          {pageExit && (
+            <motion.div
+              className="fixed inset-0 z-50 bg-purple-950/60 backdrop-blur-sm flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                className="flex flex-col items-center gap-4 text-center"
+              >
+                <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8 text-green-400" />
+                </div>
+                <p className="text-xl font-bold text-white">Pro Activated!</p>
+                <p className="text-sm text-gray-400">Taking you to your dashboard…</p>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </>
   );
 }
