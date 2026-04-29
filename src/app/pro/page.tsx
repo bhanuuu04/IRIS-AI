@@ -141,7 +141,7 @@ export default function ProSubscriptionPage() {
 
   const triggerSuccessExit = () => {
     setPageExit(true);
-    setTimeout(() => router.push('/dashboard'), 2000);
+    // No auto-redirect — user clicks the CTA button to proceed
   };
 
   const features = [
@@ -500,15 +500,25 @@ export default function ProSubscriptionPage() {
                   )}
                 </motion.div>
 
-                {/* Subtitle */}
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
+                {/* CTA Button */}
+                <motion.button
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.9, duration: 0.5 }}
-                  className="text-gray-400 text-base md:text-lg"
+                  transition={{ delay: 0.9, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+                  onClick={() => router.push('/dashboard')}
+                  className="relative group mt-2 px-8 py-4 rounded-2xl font-bold text-base md:text-lg text-white overflow-hidden"
+                  style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', boxShadow: '0 0 30px rgba(124,58,237,0.4)' }}
+                  whileHover={{ scale: 1.04, boxShadow: '0 0 50px rgba(124,58,237,0.6)' }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  Taking you to your dashboard…
-                </motion.p>
+                  {/* shimmer sweep */}
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
+                    style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)' }} />
+                  <span className="relative flex items-center gap-2">
+                    <Sparkles className="w-5 h-5" />
+                    Continue your journey with IRIS PRO+
+                  </span>
+                </motion.button>
 
                 {/* Bottom shimmer bar */}
                 <motion.div
