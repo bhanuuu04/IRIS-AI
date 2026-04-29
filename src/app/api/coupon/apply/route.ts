@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// Must use Service Role Key to bypass RLS for writes
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -25,23 +26,29 @@ export async function POST(req: Request) {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 1);
 
-    // Upsert so it works even if user row doesn't exist yet
-    const { error } = await supabase
+    // Use upsert so it works whether or not the user row exists yet
+    const { error: upsertError } = await supabase
       .from('users')
-      .update({
-        pro_mode_active: true,
-        subscription_expires_at: expiresAt.toISOString(),
-      })
-      .eq('clerk_id', userId);
+      .upsert(
+        {
+          clerk_id: userId,
+          pro_mode_active: true,
+          subscription_expires_at: expiresAt.toISOString(),
+        },
+        { onConflict: 'clerk_id' }
+      );
 
-    if (error) {
-      console.error('Supabase update error:', error);
-      return NextResponse.json({ error: 'Failed to apply coupon' }, { status: 500 });
+    if (upsertError) {
+      console.error('[coupon/apply] Supabase upsert error:', upsertError);
+      return NextResponse.json(
+        { error: 'Failed to apply coupon. Please try again.' },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true, expiresAt: expiresAt.toISOString() });
   } catch (err) {
-    console.error('Coupon apply error:', err);
+    console.error('[coupon/apply] Unexpected error:', err);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
