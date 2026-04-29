@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, animate } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft, Check, Sparkles, ShieldAlert, BrainCircuit,
@@ -18,6 +18,11 @@ export default function ProSubscriptionPage() {
   const [couponStatus, setCouponStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [couponMessage, setCouponMessage] = useState('');
   const [pageExit, setPageExit] = useState(false);
+
+  // New states for CUxGT flow
+  const [price, setPrice] = useState(149);
+  const [showSubmit, setShowSubmit] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState('');
 
   const handleSubscribe = async () => {
     try {
@@ -92,9 +97,17 @@ export default function ProSubscriptionPage() {
 
       if (res.ok && data.success) {
         setCouponStatus('success');
-        setCouponMessage('Coupon applied! Redirecting you to dashboard…');
-        // Short delay so user can read the success state, then animate out
-        setTimeout(() => triggerSuccessExit(), 1800);
+        setCouponMessage('Coupon applied!');
+        setAppliedCoupon(data.couponCode);
+
+        // Price drop animation
+        animate(149, 0, {
+          duration: 1,
+          ease: "circOut",
+          onUpdate: (latest) => setPrice(Math.round(latest))
+        });
+        
+        setShowSubmit(true);
       } else {
         setCouponStatus('error');
         setCouponMessage(data.error || 'Invalid coupon code. Please try again.');
@@ -108,9 +121,13 @@ export default function ProSubscriptionPage() {
     }
   };
 
+  const handleSubmitCoupon = () => {
+    triggerSuccessExit();
+  };
+
   const triggerSuccessExit = () => {
     setPageExit(true);
-    setTimeout(() => router.push('/dashboard'), 700);
+    setTimeout(() => router.push('/dashboard'), 2000);
   };
 
   const features = [
@@ -214,7 +231,7 @@ export default function ProSubscriptionPage() {
               </div>
 
               <div className="flex justify-center items-baseline gap-2 mb-8">
-                <span className="text-5xl font-bold text-white">₹149</span>
+                <span className="text-5xl font-bold text-white">₹{price}</span>
                 <span className="text-gray-400 font-medium">/ month</span>
               </div>
 
@@ -308,6 +325,20 @@ export default function ProSubscriptionPage() {
                       : 'Apply'
                     }
                   </button>
+
+                  <AnimatePresence>
+                    {showSubmit && (
+                      <motion.button
+                        initial={{ opacity: 0, width: 0, padding: 0 }}
+                        animate={{ opacity: 1, width: 'auto', padding: '0.75rem 1.25rem' }}
+                        exit={{ opacity: 0, width: 0, padding: 0 }}
+                        onClick={handleSubmitCoupon}
+                        className="rounded-xl text-sm font-bold bg-green-500/20 border border-green-500/30 text-green-400 hover:bg-green-500/30 hover:border-green-500/50 hover:text-green-300 transition-all whitespace-nowrap overflow-hidden"
+                      >
+                        Submit
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Feedback message */}
@@ -345,7 +376,7 @@ export default function ProSubscriptionPage() {
         <AnimatePresence>
           {pageExit && (
             <motion.div
-              className="fixed inset-0 z-50 bg-purple-950/60 backdrop-blur-sm flex items-center justify-center"
+              className="fixed inset-0 z-50 bg-purple-950/60 backdrop-blur-sm flex items-center justify-center p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -355,13 +386,29 @@ export default function ProSubscriptionPage() {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                className="flex flex-col items-center gap-4 text-center"
+                className="flex flex-col items-center gap-4 text-center max-w-2xl"
               >
-                <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center">
-                  <CheckCircle2 className="w-8 h-8 text-green-400" />
+                {appliedCoupon === 'CUXGT' && (
+                  <motion.div 
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 mb-2"
+                  >
+                    <p className="text-sm md:text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-blue-300 tracking-wide uppercase">
+                      Offer Active : Chandigarh University × Grant Thornton
+                    </p>
+                  </motion.div>
+                )}
+                
+                <div className="w-20 h-20 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center mt-2 mb-2">
+                  <CheckCircle2 className="w-10 h-10 text-green-400" />
                 </div>
-                <p className="text-xl font-bold text-white">Pro Activated!</p>
-                <p className="text-sm text-gray-400">Taking you to your dashboard…</p>
+                
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-2 tracking-tight">
+                  {appliedCoupon === 'CUXGT' ? 'Welcome to Pro Model of IRIS' : 'Pro Activated!'}
+                </h2>
+                <p className="text-lg text-gray-400">Taking you to your dashboard…</p>
               </motion.div>
             </motion.div>
           )}

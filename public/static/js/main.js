@@ -159,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         viewDetail.classList.add('hidden');
         errorContainer.classList.add('hidden');
         navSearchContainer.style.display = 'none';
-        window.parent.postMessage({ type: 'VIEW_CHANGED', view: 'dashboard' }, '*');
     });
 
     // --- Progress Ring ---
@@ -325,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     viewDashboard.classList.add('hidden');
                     viewDetail.classList.remove('hidden');
                     navSearchContainer.style.display = 'block';
-                    window.parent.postMessage({ type: 'VIEW_CHANGED', view: 'detail' }, '*');
 
                     // Apply/remove PRO glow on detail view
                     const vd = document.getElementById('view-detail');

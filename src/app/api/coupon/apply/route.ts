@@ -7,7 +7,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const VALID_COUPON = 'TEAMNOMI';
+const VALID_COUPONS = ['TEAMNOMI', 'CUXGT'];
 
 export async function POST(req: Request) {
   try {
@@ -17,8 +17,9 @@ export async function POST(req: Request) {
     }
 
     const { couponCode } = await req.json();
+    const upperCode = couponCode?.trim().toUpperCase();
 
-    if (!couponCode || couponCode.trim().toUpperCase() !== VALID_COUPON) {
+    if (!upperCode || !VALID_COUPONS.includes(upperCode)) {
       return NextResponse.json({ error: 'Invalid coupon code' }, { status: 400 });
     }
 
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, expiresAt: expiresAt.toISOString() });
+    return NextResponse.json({ success: true, expiresAt: expiresAt.toISOString(), couponCode: upperCode });
   } catch (err: any) {
     console.error('[coupon/apply] Unexpected error:', err);
     return NextResponse.json({ error: "Error: " + (err.message || "Unknown exception") }, { status: 500 });
