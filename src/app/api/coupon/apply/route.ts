@@ -47,8 +47,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, expiresAt: expiresAt.toISOString() });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[coupon/apply] Unexpected error:', err);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: "Error: " + (err.message || "Unknown exception") }, { status: 500 });
   }
 }
